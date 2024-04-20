@@ -7,26 +7,52 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class User(Base):
+    __tablename__ = "user"
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    name = Column(String(10), unique=False, nullable=False)
+    email = Column(String(120), unique=True, nullable=False)
+    password = Column(String(80), unique=False, nullable=False)
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Favourites(Base):
+    __tablename__ = "favourites"
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+    pokemon_id = Column(Integer, ForeignKey('pokemon.id'))
+    favourite_pokemon = relationship("Pokemon")
 
-    def to_dict(self):
-        return {}
+class Pokemon(Base):
+    __tablename__ = "pokemon"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True, nullable=False)
+    type = Column(String(100), unique=False, nullable=False)
+    second_type = Column(String(100), unique=False, nullable=True) 
+    height = Column(String(100), unique=False, nullable=False)
+    weight = Column(String(100), unique=False, nullable=False)
+    primary_ability = Column(String(100), unique=False, nullable=False)
+    secondary_ability = Column(String(100), unique=False, nullable=True)
+    hidden_ability = Column(String(100), unique=False, nullable=True)
+
+class Region(Base):
+    __tablename__ = "region"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True, nullable=False)
+    number_of_cities = Column(String(10), unique=False, nullable=False)
+    professor = Column(String(100), unique=True, nullable=False)
+    initials_id = Column(Integer, ForeignKey('pokemon.id'))
+    initials = relationship(Pokemon)
+    capital_id = Column(Integer, ForeignKey('cities.id'))
+    capital = relationship("Region")
+ 
+class Cities(Base):
+    __tablename__ = "cities"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True, nullable=False)
+    gym_leader = Column(String(100), unique=True, nullable=False)
+    city_region_id = Column(Integer, ForeignKey('region.id'))
+    city_region = relationship(Region)
+    
 
 ## Draw from SQLAlchemy base
 render_er(Base, 'diagram.png')
